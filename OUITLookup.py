@@ -2,6 +2,23 @@ import subprocess
 import getopt
 import sys
 
+bd = {}  # Diccionario vacío
+
+def cargarDatos():
+    global bd  # Para poder modificar la variable global
+    try:
+        f = open('manuf.txt', "r")
+        
+        for linea in f:
+            linea = linea.strip()  # Elimina espacios en blanco y \n a la izquierda y derecha
+            if not linea.startswith("#") and len(linea) >= 2:                       # Si la línea no empieza por # y tiene al menos dos caracteres
+                mac, fabricante = linea.split("\t", 1)  # Separa la línea en dos partes por el primer tabulador
+                bd[mac] = fabricante
+    except FileNotFoundError:           # Si no se encuentra el archivo 
+        print("No se ha encontrado el archivo manuf.txt")
+    except Exception as e:                  # Si ocurre cualquier otro error
+        print("Ocurrio un error al leer el archivo", e)
+
 # Función para obtener los datos de fabricación de una tarjeta de red por IP
 def obtener_datos_por_ip(ip):
     # Implementa la lógica para obtener los datos por IP aquí

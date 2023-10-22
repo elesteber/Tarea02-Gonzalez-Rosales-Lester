@@ -40,23 +40,38 @@ def obtener_tabla_arp():
 
 def main(argv):
     ip = None
+    mac = None
+    arp = False
 
     try:
-        opts, args = getopt.getopt(argv, "i", ["ip="])
-
+        opts, args = getopt.getopt(argv, "i:m:a", ["ip=", "mac=", "arp"])
     except getopt.GetoptError:
-        #Modificar para coincidir con tarea
-        print("Use: python OUILookup.py --ip <IP> | --Arg2 <Arg2> | --Arg3 | [--help] \n --ip : IP del host a consultar. \n --Arg2:  \n --Atg3: \n --help:")
+        print("Use: python OUILookup.py --ip <IP> | --mac <MAC> | --arp | --help")
         sys.exit(2)
 
     for opt, arg in opts:
-        if opt in ("-i", "--ip"):
+        if opt in ("--ip"):
             ip = arg
+        elif opt in ("--mac"):
+            mac = arg
+        elif opt in ("--arp"):
+            arp = True
+        elif opt in ("--help"):
+            print("Use: python OUILookup.py --ip <IP> | --mac <MAC> | --arp | --help")
+            print("--ip : IP del host a consultar.")
+            print("--mac: MAC a consultar. P.e. aa:bb:cc:00:00:00.")
+            print("--arp: muestra los fabricantes de los host disponibles en la tabla ARP.")
+            print("--help: muestra este mensaje y termina.")
+            sys.exit()
 
-    if ip:
+    if arp:
+        obtener_tabla_arp()
+    elif ip:
         obtener_datos_por_ip(ip)
+    elif mac:
+        obtener_datos_por_mac(mac)
     else:
-        print("Debe proporcionar una opción válida (-i, -m o -a).")
+        print("Debe proporcionar una opción válida (--ip, --mac, --arp o --help).")
 
 if __name__ == "__main__":
     main(sys.argv[1:])

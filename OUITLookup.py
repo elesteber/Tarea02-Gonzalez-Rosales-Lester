@@ -5,14 +5,16 @@ import sys
 bd = {}  # Diccionario vacío
 
 def cargarDatos():
-    global bd  # Para poder modificar la variable global
+    global bd  
     try:
         f = open('manuf.txt', "r")
         
         for linea in f:
             linea = linea.strip()  # Elimina espacios en blanco y \n a la izquierda y derecha
             if not linea.startswith("#") and len(linea) >= 2:                       # Si la línea no empieza por # y tiene al menos dos caracteres
-                mac, fabricante = linea.split("\t", 1)  # Separa la línea en dos partes por el primer tabulador
+                mac, fabricante_or = linea.split("\t", 1)  # Separa la línea en dos partes por el primer tabulador
+                fabricante = fabricante_or.split("#")[0]  # Elimina la parte del fabricante que está después del # (si existe)
+                fabricante = fabricante.strip()  # Elimina espacios en blanco y \n a la izquierda y derecha
                 bd[mac] = fabricante
     except FileNotFoundError:           # Si no se encuentra el archivo 
         print("No se ha encontrado el archivo manuf.txt")

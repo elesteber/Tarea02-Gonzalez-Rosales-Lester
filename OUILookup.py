@@ -5,7 +5,7 @@ import sys
 bd = {}  # Diccionario vacío
 
 def cargarDatos():
-    global bd  
+    global bd  # Para poder modificar la variable global
     try:
         f = open('manuf.txt', "r")
         
@@ -17,28 +17,43 @@ def cargarDatos():
                 fabricante = fabricante.strip()  # Elimina espacios en blanco y \n a la izquierda y derecha
                 bd[mac] = fabricante
     except FileNotFoundError:           # Si no se encuentra el archivo 
-        print("No se ha encontrado el archivo manuf.txt")
+        print("No se ha encontrado el archivo prueba.txt")
     except Exception as e:                  # Si ocurre cualquier otro error
         print("Ocurrio un error al leer el archivo", e)
 
-# Función para obtener los datos de fabricación de una tarjeta de red por IP
-def obtener_datos_por_ip(ip):
-    # Implementa la lógica para obtener los datos por IP aquí
-    print("Aqui su codigo para obtener los datos por ip")
-    pass
-
 # Función para obtener los datos de fabricación de una tarjeta de red por MAC
 def obtener_datos_por_mac(mac):
-    # Implementa la lógica para obtener los datos por MAC aquí
-    print("Aqui su codigo para obtener los datos por mac")
-    pass
-
+    mac = mac.strip()
+    if mac in bd:
+        return bd[mac]
+    else:
+        return "No se ha encontrado el fabricante"
 # Función para obtener la tabla ARP
 def obtener_tabla_arp():
-        # Implementa la lógica para procesar la tabla ARP aquí
-        # Imprime la tabla ARP
-    pass
-
+    try:
+        resultado = subprocess.check_output(['arp', '-a'], universal_newlines=True)
+        return resultado  # Devuelve la tabla ARP en lugar de imprimir
+    except subprocess.CalledProcessError:
+        print("Error al ejecutar el comando arp")
+        return None
+# Función para obtener los datos de fabricación de una tarjeta de red por IP    
+def obtener_datos_por_ip(ip, bd):
+    tabla_arp = obtener_tabla_arp()
+    if tabla_arp:
+        lineas = tabla_arp.splitlines()
+        for linea in lineas:
+            partes = linea.split()
+            if len(partes) >= 3:
+                direccion_ip = partes[0]
+                direccion_mac = partes[1]
+                if direccion_ip == ip:
+                    if direccion_mac in bd:
+                        return bd[direccion_mac]
+                    else:
+                        return "Proveedor no encontrado"
+        return "IP no encontrada en la tabla ARP"
+    else:
+        return "Error al obtener la tabla ARP"
 
 def main(argv):
     ip = None
@@ -71,7 +86,7 @@ def main(argv):
     elif ip:
         obtener_datos_por_ip(ip)
     elif mac:
-        obtener_datos_por_mac(mac)
+        print("El provedor es", obtener_datos_por_mac(mac))
     else:
         print("Debe proporcionar una opción válida (--ip, --mac, --arp o --help).")
 
